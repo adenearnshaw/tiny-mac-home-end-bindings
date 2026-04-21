@@ -18,7 +18,7 @@ try? FileManager.default.createDirectory(atPath: outputDir, withIntermediateDire
 
 // Generate icon using SF Symbol
 let config = NSImage.SymbolConfiguration(pointSize: 512, weight: .regular, scale: .large)
-guard let image = NSImage(systemSymbolName: "arrow.left.and.right", accessibilityDescription: nil)?
+guard let image = NSImage(systemSymbolName: "arrowkeys", accessibilityDescription: nil)?
     .withSymbolConfiguration(config) else {
     print("❌ Failed to create symbol image")
     exit(1)
