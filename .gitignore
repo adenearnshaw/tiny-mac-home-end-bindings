@@ -5,3 +5,12 @@ TinyHomeEnd/.build/
 TinyHomeEnd/Resources/AppIcon.iconset/
 *.swp
 *~
+website/.svelte-kit/
+website/build/
+website/node_modules/
+
+# Website
+website/.svelte-kit/
+website/build/
+website/node_modules/
+node_modules/
