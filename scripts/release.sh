@@ -31,7 +31,7 @@ echo "Step 5/5: Release Summary"
 echo "========================="
 echo ""
 
-VERSION="0.2.0"
+VERSION="0.3.0"
 DMG_FILE="build/TinyHomeEnd-${VERSION}.dmg"
 
 if [ -f "$DMG_FILE" ]; then
