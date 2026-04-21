@@ -1,0 +1,103 @@
+name: Build macOS App
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'TinyHomeEnd/**'
+      - 'build-app.sh'
+      - 'scripts/**'
+      - '.github/workflows/build-macos-app.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Build Swift package
+        run: |
+          cd TinyHomeEnd
+          swift build --product TinyHomeEndApp -c release
+
+      - name: Run tests
+        run: |
+          cd TinyHomeEnd
+          swift test
+
+      - name: Build app bundle
+        run: ./build-app.sh
+
+      - name: Upload unsigned app
+        uses: actions/upload-artifact@v4
+        with:
+          name: TinyHomeEnd-unsigned
+          path: build/Tiny Home End.app
+          retention-days: 7
+
+  # This job will be enabled once code signing is set up
+  sign-and-release:
+    if: false  # Disabled until code signing is configured
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download unsigned app
+        uses: actions/download-artifact@v4
+        with:
+          name: TinyHomeEnd-unsigned
+          path: build/
+
+      - name: Import signing certificate
+        env:
+          SIGNING_CERT: ${{ secrets.SIGNING_CERTIFICATE_P12_BASE64 }}
+          SIGNING_CERT_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
+        run: |
+          # Import certificate to keychain
+          echo $SIGNING_CERT | base64 --decode > certificate.p12
+          security create-keychain -p "" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security import certificate.p12 -k build.keychain -P $SIGNING_CERT_PASSWORD -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" build.keychain
+          rm certificate.p12
+
+      - name: Sign app
+        run: ./scripts/sign-app.sh
+
+      - name: Notarize app
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: ./scripts/notarize-app.sh
+
+      - name: Create DMG
+        run: ./scripts/create-dmg.sh
+
+      - name: Upload signed DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: TinyHomeEnd-signed
+          path: build/*.dmg
+          retention-days: 90
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/*.dmg
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
