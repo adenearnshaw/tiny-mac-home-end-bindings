@@ -13,6 +13,7 @@ struct TinyHomeEndApp: App {
     }
 }
 
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var settingsWindow: NSWindow?
@@ -44,12 +45,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         updateMenu()
         checkCurrentState()
         
+        // Setup keyboard shortcuts
+        setupKeyboardShortcuts()
+        
         // Show first run welcome
         if isFirstRun {
             UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.showFirstRunWelcome()
             }
+        }
+    }
+    
+    private func setupKeyboardShortcuts() {
+        // Add local event monitor for keyboard shortcuts
+        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            // Cmd+Shift+K to toggle bindings
+            if event.modifierFlags.contains([.command, .shift]) && event.charactersIgnoringModifiers == "k" {
+                DispatchQueue.main.async {
+                    self?.toggleBindings()
+                }
+                return nil
+            }
+            
+            return event
         }
     }
     
@@ -62,6 +81,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         button.image = NSImage(systemSymbolName: iconName, accessibilityDescription: "Tiny Home/End")
     }
     
+    @MainActor
     @objc func statusBarButtonClicked() {
         updateMenu()
         statusItem?.menu?.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
@@ -75,9 +95,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let enableItem = NSMenuItem(
             title: isEnabled ? "Disable Home/End Bindings" : "Enable Home/End Bindings",
             action: #selector(toggleBindings),
-            keyEquivalent: ""
+            keyEquivalent: "k"
         )
         enableItem.target = self
+        enableItem.keyEquivalentModifierMask = [.command, .shift]
         menu.addItem(enableItem)
         
         menu.addItem(NSMenuItem.separator())
