@@ -24,30 +24,53 @@ guard let image = NSImage(systemSymbolName: "keyboard.fill", accessibilityDescri
     exit(1)
 }
 
-// Create a colored version with gradient
+// Create a professional macOS-style icon
 let baseSize = NSSize(width: 1024, height: 1024)
 let finalImage = NSImage(size: baseSize)
 
 finalImage.lockFocus()
 
-// Draw gradient background
+// macOS icon specs: rounded rectangle fills entire canvas
+let cornerRadius: CGFloat = 228  // ~22.3% of 1024 for macOS rounded corners
+let iconPath = NSBezierPath(roundedRect: NSRect(origin: .zero, size: baseSize), 
+                            xRadius: cornerRadius, 
+                            yRadius: cornerRadius)
+
+// Clip to rounded rectangle shape
+iconPath.addClip()
+
+// Draw vibrant gradient background (blue to purple)
 let gradient = NSGradient(colors: [
-    NSColor(red: 0.0, green: 0.48, blue: 1.0, alpha: 1.0),  // Blue
-    NSColor(red: 0.35, green: 0.34, blue: 0.84, alpha: 1.0)  // Purple
+    NSColor(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0),      // Bright blue
+    NSColor(red: 0.4, green: 0.3, blue: 0.95, alpha: 1.0)      // Vibrant purple
 ])
 gradient?.draw(in: NSRect(origin: .zero, size: baseSize), angle: 135)
 
-// Draw rounded rectangle background
-let cornerRadius: CGFloat = 228  // ~22% of 1024 for macOS Big Sur style
-let inset: CGFloat = 0
-let backgroundRect = NSRect(x: inset, y: inset, width: baseSize.width - inset * 2, height: baseSize.height - inset * 2)
-let path = NSBezierPath(roundedRect: backgroundRect, xRadius: cornerRadius, yRadius: cornerRadius)
-NSColor.white.withAlphaComponent(0.15).setFill()
-path.fill()
+// Add subtle top highlight for depth (like macOS icons)
+let highlight = NSGradient(colors: [
+    NSColor.white.withAlphaComponent(0.25),
+    NSColor.white.withAlphaComponent(0.0)
+])
+let highlightRect = NSRect(x: 0, y: baseSize.height * 0.5, 
+                          width: baseSize.width, height: baseSize.height * 0.5)
+highlight?.draw(in: highlightRect, angle: 90)
+
+// Draw keyboard symbol with subtle shadow for depth
+let symbolSize: CGFloat = 520
+let symbolRect = NSRect(x: (baseSize.width - symbolSize) / 2,
+                       y: (baseSize.height - symbolSize) / 2,
+                       width: symbolSize,
+                       height: symbolSize)
+
+// Draw shadow
+let shadow = NSShadow()
+shadow.shadowColor = NSColor.black.withAlphaComponent(0.3)
+shadow.shadowBlurRadius = 20
+shadow.shadowOffset = NSSize(width: 0, height: -10)
+shadow.set()
 
 // Draw symbol in white
 NSColor.white.setFill()
-let symbolRect = NSRect(x: 200, y: 200, width: 624, height: 624)
 image.draw(in: symbolRect)
 
 finalImage.unlockFocus()
