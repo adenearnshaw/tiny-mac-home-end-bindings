@@ -9,12 +9,18 @@ let package = Package(
         .macOS(.v14)
     ],
     products: [
-        .executable(name: "TinyHomeEnd", targets: ["TinyHomeEnd"])
+        .executable(name: "TinyHomeEnd", targets: ["TinyHomeEnd"]),
+        .executable(name: "TinyHomeEndApp", targets: ["TinyHomeEndApp"])
     ],
     targets: [
         .executableTarget(
             name: "TinyHomeEnd",
             dependencies: ["KeyBindingCore"]
+        ),
+        .executableTarget(
+            name: "TinyHomeEndApp",
+            dependencies: ["KeyBindingCore"],
+            path: "Sources/TinyHomeEndApp"
         ),
         .target(
             name: "KeyBindingCore",
