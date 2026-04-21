@@ -321,15 +321,30 @@ plutil -lint ~/Library/KeyBindings/DefaultKeyBinding.dict
 
 ## 8. Next Steps
 
-- [ ] Backup existing DefaultKeyBinding.dict
-- [ ] Create test version with Line-based behavior
-- [ ] Test on all applications in test plan
+- [x] Backup existing DefaultKeyBinding.dict
+- [x] Create test version with Line-based behavior
+- [x] Applied line-based configuration for testing
+- [x] Created test document
+- [ ] Test on all applications in test plan (MANUAL TESTING REQUIRED)
 - [ ] Document which apps require restart
 - [ ] Document which apps don't work at all
 - [ ] Validate backup/restore process
-- [ ] Create TEST_PLAN.md with detailed checklist
-- [ ] Decide: Line vs Paragraph default
-- [ ] Decide: Include Cmd modifier option
+- [x] Create TEST_PLAN.md with detailed checklist
+- [x] Decide: Line vs Paragraph default → **DECISION: Line-based (Windows-like) as default**
+- [x] Decide: Include Cmd modifier option → **DECISION: Yes, as optional setting**
+
+### Decision Rationale
+
+**Line-based as default:**
+- Matches Windows behavior (project goal)
+- Blog post recommendation
+- More intuitive for line-by-line editing
+- Paragraph-based can be optional advanced setting
+
+**Cmd modifier support:**
+- Some apps work better with Cmd than Ctrl
+- Let user choose in settings
+- Increase compatibility
 
 ---
 
