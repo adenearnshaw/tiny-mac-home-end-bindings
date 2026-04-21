@@ -1,5 +1,6 @@
 import SwiftUI
 import KeyBindingCore
+import UserNotifications
 
 @main
 struct TinyHomeEndApp: App {
@@ -18,19 +19,47 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var aboutWindow: NSWindow?
     private let keyBindingService = KeyBindingService()
     @Published private var isEnabled = false
+    private var isFirstRun = false
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Request notification permissions
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+            if let error = error {
+                print("Notification permission error: \(error)")
+            }
+        }
+        
+        // Check if first run
+        isFirstRun = !UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
+        
         // Create menu bar item
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "keyboard", accessibilityDescription: "Tiny Home/End")
+            updateMenuBarIcon()
             button.action = #selector(statusBarButtonClicked)
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
         
         updateMenu()
         checkCurrentState()
+        
+        // Show first run welcome
+        if isFirstRun {
+            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.showFirstRunWelcome()
+            }
+        }
+    }
+    
+    @MainActor
+    private func updateMenuBarIcon() {
+        guard let button = statusItem?.button else { return }
+        
+        // Use different icon based on enabled state
+        let iconName = isEnabled ? "keyboard.fill" : "keyboard"
+        button.image = NSImage(systemSymbolName: iconName, accessibilityDescription: "Tiny Home/End")
     }
     
     @objc func statusBarButtonClicked() {
@@ -38,6 +67,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem?.menu?.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
     }
     
+    @MainActor
     private func updateMenu() {
         let menu = NSMenu()
         
@@ -60,6 +90,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
         settingsItem.target = self
         menu.addItem(settingsItem)
+        
+        // Launch at Login
+        let launchAtLoginItem = NSMenuItem(
+            title: "Launch at Login",
+            action: #selector(toggleLaunchAtLogin),
+            keyEquivalent: ""
+        )
+        launchAtLoginItem.target = self
+        launchAtLoginItem.state = LaunchAtLoginService.shared.isEnabled ? .on : .off
+        menu.addItem(launchAtLoginItem)
+        
+        menu.addItem(NSMenuItem.separator())
         
         // About
         let aboutItem = NSMenuItem(
@@ -84,6 +126,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem?.menu = menu
     }
     
+    @MainActor
+    @objc func toggleLaunchAtLogin() {
+        LaunchAtLoginService.shared.isEnabled.toggle()
+        updateMenu()
+    }
+    
     private func checkCurrentState() {
         // Check if our bindings are currently applied
         isEnabled = keyBindingService.keyBindingFileExists()
@@ -96,12 +144,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 // Disable: restore from backup
                 if let backups = try? keyBindingService.listBackups(), let latest = backups.first {
                     try keyBindingService.restoreFromBackup(latest)
+                    updateMenuBarIcon()
                     showNotification(title: "Bindings Disabled", message: "Original keybindings restored")
                 }
             } else {
                 // Enable: apply Windows-like configuration
                 let config = KeyBindingConfiguration.windowsLike
                 try keyBindingService.applyConfiguration(config, merge: true)
+                updateMenuBarIcon()
                 showNotification(
                     title: "Bindings Enabled",
                     message: "Windows-like Home/End keys applied. Restart apps to apply changes."
@@ -115,6 +165,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @MainActor
+    private func showFirstRunWelcome() {
+        let alert = NSAlert()
+        alert.messageText = "Welcome to Tiny Home/End!"
+        alert.informativeText = """
+        This app makes Home/End keys work like they do on Windows.
+        
+        • Home → Beginning of line
+        • End → End of line
+        • Ctrl+Home/End → Document navigation
+        
+        Your existing keybindings will be backed up automatically before any changes.
+        
+        Would you like to enable Windows-like bindings now?
+        """
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "Enable")
+        alert.addButton(withTitle: "Later")
+        
+        let response = alert.runModal()
+        if response == .alertFirstButtonReturn {
+            toggleBindings()
+        }
+    }
+    
+    @MainActor
     @objc func openSettings() {
         if settingsWindow == nil {
             let settingsView = SettingsView(service: keyBindingService)
@@ -122,8 +197,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             settingsWindow = NSWindow(contentViewController: hostingController)
             settingsWindow?.title = "Settings"
-            settingsWindow?.styleMask = [.titled, .closable]
-            settingsWindow?.setContentSize(NSSize(width: 500, height: 400))
+            settingsWindow?.styleMask = [.titled, .closable, .miniaturizable]
+            settingsWindow?.setContentSize(NSSize(width: 550, height: 500))
             settingsWindow?.center()
         }
         
@@ -154,11 +229,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func showNotification(title: String, message: String) {
-        let notification = NSUserNotification()
-        notification.title = title
-        notification.informativeText = message
-        notification.soundName = NSUserNotificationDefaultSoundName
-        NSUserNotificationCenter.default.deliver(notification)
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = message
+        content.sound = .default
+        
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil
+        )
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Notification error: \(error)")
+            }
+        }
     }
     
     @MainActor
