@@ -32,38 +32,13 @@ ditto -c -k --keepParent "$APP_BUNDLE" "$ZIP_FILE"
 echo "✅ Created: $ZIP_FILE"
 
 echo ""
-echo "🔑 Notarization Credentials Setup"
-echo "================================="
-echo ""
-echo "You need to create an app-specific password:"
-echo "1. Go to: https://appleid.apple.com/account/manage"
-echo "2. Sign in with: $APPLE_ID"
-echo "3. Under 'Security', find 'App-Specific Passwords'"
-echo "4. Click 'Generate Password'"
-echo "5. Name it: 'Tiny Home End Notarization'"
-echo "6. Copy the password that's generated"
-echo ""
-read -p "Press Enter when you have your app-specific password ready..."
-
-echo ""
-echo "Now we'll store these credentials securely in your keychain..."
-echo ""
-
-# Store credentials in keychain for future use
-xcrun notarytool store-credentials "notarytool-tinyhomeend" \
-    --apple-id "$APPLE_ID" \
-    --team-id "$TEAM_ID" \
-    --password "$(read -sp 'Paste your app-specific password: ' pwd; echo $pwd)"
-
-echo ""
-echo ""
-echo "✅ Credentials stored!"
-echo ""
 echo "📤 Submitting app to Apple for notarization..."
+echo "   Using keychain profile: TinyHomeEnd"
+echo ""
 
-# Submit for notarization
+# Submit for notarization using stored credentials
 xcrun notarytool submit "$ZIP_FILE" \
-    --keychain-profile "notarytool-tinyhomeend" \
+    --keychain-profile "TinyHomeEnd" \
     --wait
 
 # Check if notarization succeeded
@@ -82,8 +57,8 @@ if [ $? -eq 0 ]; then
 else
     echo "❌ Notarization failed!"
     echo ""
-    echo "To see the detailed log:"
-    echo "  xcrun notarytool log <submission-id> --keychain-profile notarytool-tinyhomeend"
+    echo "To see the detailed log, get the submission ID from above and run:"
+    echo "  xcrun notarytool log <submission-id> --keychain-profile TinyHomeEnd"
     exit 1
 fi
 

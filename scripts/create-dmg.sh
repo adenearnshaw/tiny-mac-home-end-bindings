@@ -79,7 +79,15 @@ hdiutil create -srcfolder "$TEMP_DIR" \
 
 # Mount the DMG
 echo "📂 Mounting DMG..."
-MOUNT_DIR=$(hdiutil attach -readwrite -noverify -noautoopen "$TEMP_DMG" | awk 'END{print $3}')
+MOUNT_OUTPUT=$(hdiutil attach -readwrite -noverify -noautoopen "$TEMP_DMG")
+MOUNT_DIR=$(echo "$MOUNT_OUTPUT" | grep -E '/Volumes/' | sed 's/.*\(\/Volumes\/.*\)/\1/')
+
+if [ -z "$MOUNT_DIR" ]; then
+    echo "❌ Failed to mount DMG"
+    exit 1
+fi
+
+echo "   Mounted at: $MOUNT_DIR"
 
 # Set background and icon positions (requires AppleScript)
 echo "🎨 Customizing DMG appearance..."
