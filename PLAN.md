@@ -77,7 +77,7 @@ A native macOS menu bar application that applies Windows-like behavior for Home 
 
 - [ ] Setup project structure
   ```
-  TinyHomeEnd/
+  src/
   ├── App/
   │   ├── TinyHomeEndApp.swift
   │   └── AppDelegate.swift

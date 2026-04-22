@@ -11,7 +11,7 @@ let sizes: [(size: Int, scale: Int)] = [
     (512, 1), (512, 2)
 ]
 
-let outputDir = "TinyHomeEnd/Resources/AppIcon.appiconset"
+let outputDir = "src/Resources/AppIcon.appiconset"
 
 // Create output directory
 try? FileManager.default.createDirectory(atPath: outputDir, withIntermediateDirectories: true)

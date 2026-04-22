@@ -1,8 +1,8 @@
 #!/bin/bash
 
-ICON_DIR="TinyHomeEnd/Resources/AppIcon.appiconset"
-ICONSET_DIR="TinyHomeEnd/Resources/AppIcon.iconset"
-ICNS_FILE="TinyHomeEnd/Resources/AppIcon.icns"
+ICON_DIR="src/Resources/AppIcon.appiconset"
+ICONSET_DIR="src/Resources/AppIcon.iconset"
+ICNS_FILE="src/Resources/AppIcon.icns"
 
 # Create iconset directory
 mkdir -p "$ICONSET_DIR"

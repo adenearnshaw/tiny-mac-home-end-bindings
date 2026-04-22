@@ -44,7 +44,7 @@ Example: `0.3.0` → `0.4.0` (new feature) or `0.3.1` (bug fix)
 
 Update the version in **3 files**:
 
-1. **TinyHomeEnd/Resources/Info.plist**
+1. **src/Resources/Info.plist**
    ```xml
    <key>CFBundleShortVersionString</key>
    <string>0.4.0</string>  <!-- Update this -->
@@ -65,7 +65,7 @@ Update the version in **3 files**:
 #### 1.3 Commit Version Changes
 
 ```bash
-git add TinyHomeEnd/Resources/Info.plist scripts/release.sh scripts/create-dmg.sh
+git add src/Resources/Info.plist scripts/release.sh scripts/create-dmg.sh
 git commit -m "Bump version to 0.4.0"
 git push origin main
 ```
@@ -257,7 +257,7 @@ These steps are already completed, but listed here for reference:
 ## File Locations
 
 ### Version Numbers
-- `TinyHomeEnd/Resources/Info.plist` - App version
+- `src/Resources/Info.plist` - App version
 - `scripts/release.sh` - Release script version
 - `scripts/create-dmg.sh` - DMG creation version
 
@@ -297,7 +297,7 @@ These steps are already completed, but listed here for reference:
 
 ### Entitlements
 
-The app requires these entitlements (in `TinyHomeEnd/Resources/TinyHomeEnd.entitlements`):
+The app requires these entitlements (in `src/Resources/TinyHomeEnd.entitlements`):
 - `com.apple.security.app-sandbox` - App sandboxing
 - `com.apple.security.files.user-selected.read-write` - File access
 - Hardened runtime enabled for notarization

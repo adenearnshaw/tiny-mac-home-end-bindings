@@ -5,7 +5,7 @@ set -e
 echo "📦 Building Tiny Home/End App Bundle..."
 
 # Build the app
-cd TinyHomeEnd
+cd src
 swift build --product TinyHomeEndApp -c release
 
 # Create app bundle structure

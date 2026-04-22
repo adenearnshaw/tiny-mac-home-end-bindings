@@ -7,7 +7,7 @@ echo "🔐 Code Signing Tiny Home/End App..."
 # Configuration
 APP_NAME="Tiny Home End"
 APP_BUNDLE="build/${APP_NAME}.app"
-ENTITLEMENTS="TinyHomeEnd/Resources/TinyHomeEnd.entitlements"
+ENTITLEMENTS="src/Resources/TinyHomeEnd.entitlements"
 BUNDLE_ID="com.a10w.tinymackeybindings"
 APPLE_ID="apple@adenearnshaw.com"
 
