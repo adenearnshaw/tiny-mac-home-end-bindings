@@ -2,37 +2,34 @@
 
 ## Your Account Information
 
-**Apple ID**: apple@adenearnshaw.com  
-**Personal Account** (NOT AutoFlow company account)
+**Apple ID**: `apple@<your-personal-domain>.com`  
+**Account Type**: Personal Apple Developer Account
 
-⚠️ **Important**: This is a personal project. Make sure to use your personal Apple Developer account, not your company's AutoFlow account when setting up certificates.
+⚠️ **Important**: This project uses a personal Apple Developer account. Ensure you're using the correct account when setting up certificates and notarization.
 
 ## Prerequisites
 
 You'll need:
-1. ✅ Apple Developer Account (apple@adenearnshaw.com) - Renewed, waiting for activation
-2. Developer ID Application Certificate (get after activation)
+1. ✅ Active Apple Developer Account ($99/year)
+2. Developer ID Application Certificate
 3. App-specific password for notarization
 
-## Account Activation Status
+## Verify Account Status
 
-Your Apple Developer account was recently renewed. Activation typically takes 1-24 hours.
-
-Check activation status:
-- https://developer.apple.com/account
-- Once active, you'll see your membership details
+Before proceeding, ensure your Apple Developer account is active:
+- Visit https://developer.apple.com/account
+- Confirm your membership is active and in good standing
+- Note: New accounts or renewals may take 1-24 hours to activate
 
 ## Step 1: Get Developer ID Application Certificate
 
-**⚠️ Wait for your account to be fully activated before proceeding**
-
-### Option A: Using Xcode (Easiest)
+### Option A: Using Xcode (Recommended)
 
 1. Open **Xcode**
 2. Go to **Xcode > Settings... (⌘,)**
 3. Click **Accounts** tab
 4. Click **+** to add account (if not already added)
-5. Sign in with: **apple@adenearnshaw.com**
+5. Sign in with your **Apple Developer account**
 6. Select your account and click **Manage Certificates...**
 7. Click **+** button
 8. Select **Developer ID Application**
@@ -49,50 +46,58 @@ Check activation status:
 ## Step 2: Create App-Specific Password
 
 1. Go to https://appleid.apple.com/account/manage
-2. Sign in with: **apple@adenearnshaw.com**
+2. Sign in with your **Apple ID**
 3. Under **Security** section, find **App-Specific Passwords**
 4. Click **Generate Password**
-5. Name it: "Tiny Home End Notarization"
+5. Name it: "Tiny Mac Home End Notarization" (or similar)
 6. **Save this password** - you'll need it for notarization
 
-## Step 3: Automated Release Build
+### Store Password Securely
 
-Once your account is active and you have the certificate:
-
-```bash
-# Complete release build (all steps)
-./scripts/release.sh
-```
-
-This will:
-1. Build the app
-2. Sign with your personal certificate
-3. Notarize with Apple
-4. Create signed DMG
-5. Generate SHA256 for Homebrew
-
-### Individual Steps
+Store the app-specific password in your keychain for automation:
 
 ```bash
-# Just sign the app
-./scripts/sign-app.sh
-
-# Just notarize
-./scripts/notarize-app.sh
-
-# Just create DMG
-./scripts/create-dmg.sh
+xcrun notarytool store-credentials "notarytool-profile" \
+  --apple-id "YOUR_APPLE_ID" \
+  --team-id "YOUR_TEAM_ID" \
+  --password "APP_SPECIFIC_PASSWORD"
 ```
 
-## Step 6: Verify
+Find your Team ID at: https://developer.apple.com/account
+
+## Step 3: Build and Sign the App
+
+Once your certificate is installed:
 
 ```bash
-# Check signature
-codesign -vvv --deep --strict "build/Tiny Home End.app"
-
-# Check notarization
-spctl -a -vvv -t install "build/Tiny Home End.app"
+# Build the app using the build script
+./scripts/build-app.sh
 ```
+
+This script will:
+1. Clean previous builds
+2. Build the app with Xcode
+3. Sign the app with your Developer ID Application certificate
+4. Prepare it for notarization
+
+The signed app will be in: `build/Tiny Mac Home End.app`
+
+## Step 4: Verify Signing
+
+Check that the app is properly signed:
+
+```bash
+# Verify code signature
+codesign -vvv --deep --strict "build/Tiny Mac Home End.app"
+
+# Check signing identity
+codesign -dvv "build/Tiny Mac Home End.app"
+```
+
+Expected output should show:
+- Valid signature
+- Developer ID Application certificate
+- Hardened runtime enabled
 
 ## Troubleshooting
 
