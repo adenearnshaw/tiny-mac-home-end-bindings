@@ -16,7 +16,7 @@ VOLUME_NAME="Tiny Home End ${VERSION}"
 # Check if app exists
 if [ ! -d "$APP_BUNDLE" ]; then
     echo "❌ Error: App bundle not found at $APP_BUNDLE"
-    echo "Run ./build-app.sh first"
+    echo "Run ./scripts/build-app.sh first"
     exit 1
 fi
 

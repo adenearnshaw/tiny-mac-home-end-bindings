@@ -81,7 +81,7 @@ Run the complete release script:
 ```
 
 This script will automatically:
-1. **Build** the app (`./build-app.sh`)
+1. **Build** the app (`./scripts/build-app.sh`)
 2. **Code sign** with your Developer ID (`./scripts/sign-app.sh`)
 3. **Notarize** with Apple (`./scripts/notarize-app.sh`)
    - Takes 2-5 minutes typically
@@ -267,7 +267,7 @@ These steps are already completed, but listed here for reference:
 - `build/Tiny Home End.zip` - Notarization submission (temporary)
 
 ### Scripts
-- `build-app.sh` - Builds the Swift app
+- `scripts/build-app.sh` - Builds the Swift app
 - `scripts/sign-app.sh` - Code signs the app
 - `scripts/notarize-app.sh` - Submits to Apple for notarization
 - `scripts/create-dmg.sh` - Creates DMG installer

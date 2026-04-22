@@ -31,7 +31,7 @@ if [ -z "$IDENTITY" ]; then
     echo "Note: Your account may still be activating. This can take up to 24 hours."
     echo "Check status at: https://developer.apple.com/account"
     echo ""
-    echo "See CODESIGNING.md for detailed instructions"
+    echo "See docs/CODESIGNING.md for detailed instructions"
     exit 1
 fi
 
@@ -41,7 +41,7 @@ echo "   (Personal account - not AutoFlow)"
 # Check if app bundle exists
 if [ ! -d "$APP_BUNDLE" ]; then
     echo "❌ Error: App bundle not found at $APP_BUNDLE"
-    echo "Run ./build-app.sh first"
+    echo "Run ./scripts/build-app.sh first"
     exit 1
 fi
 

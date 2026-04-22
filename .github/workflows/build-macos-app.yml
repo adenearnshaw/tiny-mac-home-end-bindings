@@ -4,8 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'TinyHomeEnd/**'
-      - 'build-app.sh'
+      - 'src/**'
       - 'scripts/**'
       - '.github/workflows/build-macos-app.yml'
   pull_request:
@@ -25,16 +24,16 @@ jobs:
 
       - name: Build Swift package
         run: |
-          cd TinyHomeEnd
+          cd src
           swift build --product TinyHomeEndApp -c release
 
       - name: Run tests
         run: |
-          cd TinyHomeEnd
+          cd src
           swift test
 
       - name: Build app bundle
-        run: ./build-app.sh
+        run: ./scripts/build-app.sh
 
       - name: Upload unsigned app
         uses: actions/upload-artifact@v4

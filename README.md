@@ -10,9 +10,10 @@ A native macOS menu bar app that applies Windows-like behavior for Home and End 
 
 ## 📋 Quick Links
 
-- [Project Plan](PLAN.md) - Full development roadmap
-- [Research Findings](RESEARCH.md) - Technical validation and approach
-- [Test Plan](TEST_PLAN.md) - Manual testing checklist
+- [Project Plan](docs/PLAN.md) - Full development roadmap
+- [Research Findings](docs/RESEARCH.md) - Technical validation and approach
+- [Test Plan](docs/TEST_PLAN.md) - Manual testing checklist
+- [Release Guide](docs/RELEASE_GUIDE.md) - How to create releases
 
 ## 🎯 What This App Does
 
@@ -71,7 +72,7 @@ This app will:
 ### Building from Source
 
 ```bash
-cd TinyHomeEnd
+cd src
 swift build --product TinyHomeEndApp
 .build/arm64-apple-macosx/debug/TinyHomeEndApp
 ```
@@ -79,7 +80,7 @@ swift build --product TinyHomeEndApp
 ### Running Tests
 
 ```bash
-cd TinyHomeEnd
+cd src
 swift test
 ```
 

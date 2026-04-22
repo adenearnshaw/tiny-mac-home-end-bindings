@@ -8,7 +8,7 @@ echo ""
 
 # Step 1: Build the app
 echo "Step 1/5: Building app..."
-./build-app.sh
+./scripts/build-app.sh
 
 # Step 2: Sign the app
 echo ""
